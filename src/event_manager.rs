@@ -1,6 +1,7 @@
 pub mod event;
 use csv::Error;
 use std::fs::File;
+use chrono::NaiveDate;
 
 pub struct EventManager {
     event_list: Vec<event::Event>,
@@ -15,6 +16,21 @@ impl EventManager {
 
     pub fn add_event(&mut self, e: event::Event) {
         self.event_list.push(e);
+    }
+
+    // Delete all events that match the given information
+    pub fn delete_event(&mut self, date: Option<NaiveDate>, desc: Option<&str>, cate: Option<&str>) {
+        let mut index_list = Vec::new();
+        for (i, e) in self.event_list.iter().enumerate() {
+            if date.map_or(true, |date| e.date() == date) 
+            && desc.map_or(true, |desc| e.description() == desc)
+            && cate.map_or(true, |cate| e.category() == cate) {
+                index_list.push(i);
+            }
+        }
+        for i in index_list.iter().rev() {
+            self.event_list.remove(*i);
+        }
     }
 
     pub fn import_csv(&mut self, file_name: &str) -> Result<(), Error> {
