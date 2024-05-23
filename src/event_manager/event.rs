@@ -13,7 +13,7 @@ impl Event {
         Event {
             date: Local::now().naive_local().into(),
             description: String::from("Empty event"),
-            category: String::from(""),
+            category: String::from("Category"),
         }
     }
     // Getters and setters

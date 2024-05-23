@@ -7,7 +7,7 @@ fn main() {
     let mut events: event_manager::EventManager = event_manager::EventManager::new();
 
     // Import events from CSV file
-    if let Err(err) = events.import_csv("data.csv") {
+    if let Err(err) = events.import_csv("test-data.csv") {
         println!("Error importing CSV: {}", err);
     }
 
@@ -32,5 +32,11 @@ fn main() {
     println!("\n");
     for event in &events {
         print!("{}\n", event);
+    }
+    println!("\n");
+
+    // Export events to CSV file
+    if let Err(err) = events.export_csv("data.csv") {
+        println!("Error exporting CSV: {}", err);
     }
 }

@@ -31,6 +31,7 @@ impl EventManager {
         for i in index_list.iter().rev() {
             self.event_list.remove(*i);
         }
+        
     }
 
     pub fn import_csv(&mut self, file_name: &str) -> Result<(), Error> {
@@ -38,7 +39,6 @@ impl EventManager {
 
         let mut rdr = csv::ReaderBuilder::new()
             .has_headers(true)
-            .delimiter(b';')
             .from_reader(file);
 
         for result in rdr.records() {
@@ -53,6 +53,19 @@ impl EventManager {
             e.set_category(category);
             self.add_event(e);
         }
+
+        Ok(())
+    }
+
+    pub fn export_csv(&self, file_name: &str) -> Result<(), Error> {
+        let mut wtr = csv::Writer::from_path(file_name)?;
+
+        wtr.write_record(&["date", "description", "category"])?;
+        for e in &self.event_list {
+            wtr.write_record(&[&e.date().to_string(), &e.description(), &e.category()])?;
+        }
+
+        wtr.flush()?;
 
         Ok(())
     }
