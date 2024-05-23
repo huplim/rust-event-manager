@@ -60,3 +60,41 @@ impl fmt::Display for Event {
         write!(f, "{}: {} ({})", self.date(), self.description(), self.category())
     }
 }
+
+
+
+// TESTS
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use chrono::NaiveDate;
+
+    #[test]
+    fn test_new_event() {
+        let event = Event::new();
+        assert_eq!(event.description(), "Empty event");
+        assert_eq!(event.category(), "");
+    }
+
+    #[test]
+    fn test_set_date() {
+        let mut event = Event::new();
+        event.set_date("2022-01-01");
+        assert_eq!(event.date(), NaiveDate::from_ymd(2022, 1, 1));
+    }
+
+    #[test]
+    fn test_set_description() {
+        let mut event = Event::new();
+        event.set_description("Test event");
+        assert_eq!(event.description(), "Test event");
+    }
+
+    #[test]
+    #[should_panic(expected = "Failed to parse date")]
+    fn test_set_invalid_date() {
+        let mut event = Event::new();
+        event.set_date("invalid-date");
+    }
+}

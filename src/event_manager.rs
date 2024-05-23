@@ -58,10 +58,11 @@ impl EventManager {
     }
 }
 
-impl Iterator for EventManager {
-    type Item = event::Event;
+impl<'a> IntoIterator for &'a EventManager {
+    type Item = &'a event::Event;
+    type IntoIter = std::slice::Iter<'a, event::Event>;
 
-    fn next(&mut self) -> Option<Self::Item> {
-        self.event_list.pop()
+    fn into_iter(self) -> Self::IntoIter {
+        self.event_list.iter()
     }
 }
