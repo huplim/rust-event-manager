@@ -34,6 +34,21 @@ impl EventManager {
         
     }
 
+    // Print all events that match the given information
+    pub fn print_events(&mut self, date: Option<NaiveDate>, desc: Option<&str>, cate: Option<&str>) {
+        let mut index_list = Vec::new();
+        for (i, e) in self.event_list.iter().enumerate() {
+            if date.map_or(true, |date| e.date() == date) 
+            && desc.map_or(true, |desc| e.description() == desc)
+            && cate.map_or(true, |cate| e.category() == cate) {
+                index_list.push(i);
+            }
+        }
+        for i in index_list.iter().rev() {
+            println!("{}", self.event_list[*i]);
+        }
+    }
+
     pub fn import_csv(&mut self, file_name: &str) -> Result<(), Error> {
         let file = File::open(file_name)?;
 

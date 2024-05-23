@@ -35,6 +35,26 @@ fn main() {
     }
     println!("\n");
 
+    // Print Intel events
+    println!("Intel events:");
+    events.print_events(None, None, Some("Intel"));
+    println!("\n");
+
+    // Print Google events
+    println!("Google events:");
+    events.print_events(None, None, Some("Google"));
+    println!("\n");
+
+    // Print 2007-06-29 events
+    println!("2007-06-29 events:");
+    events.print_events(NaiveDate::from_ymd_opt(2007, 6, 29), None, None);
+    println!("\n");
+
+    // Print "Facebook founded" events
+    println!("\"Facebook founded\" events:");
+    events.print_events(None, Some("Facebook founded"), None);
+    println!("\n");
+
     // Export events to CSV file
     if let Err(err) = events.export_csv("data.csv") {
         println!("Error exporting CSV: {}", err);
