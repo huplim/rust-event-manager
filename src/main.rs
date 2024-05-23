@@ -14,45 +14,47 @@ fn main() {
     // Add default event
     events.add_event(event::Event::new());
 
-    // Iterate over the vector and print each event
+    // All events from csv file
+    println!("All events:");
+    events.print_events(None, None, None, None);
     println!("\n");
-    for event in &events {
-        print!("{}\n", event);
-    }
+
+    // Print events from 2000-01-01 to 2015-12-31
+    println!("Events from 2000-01-01 to 2015-12-31:");
+    events.print_events(NaiveDate::from_ymd_opt(2000, 1, 1), NaiveDate::from_ymd_opt(2015, 12, 31), None, None);
     
     // Deletes Microsoft events
-    events.delete_event(None, None, Some("Microsoft"));
+    events.delete_event(None, None, None, Some("Microsoft"));
     // Deletes 2010-04-03 events
-    events.delete_event(NaiveDate::from_ymd_opt(2010, 4, 3), None, None);
+    events.delete_event(NaiveDate::from_ymd_opt(2010, 4, 3), None, None, None);
     // Deletes Nintendo Switch released event
-    events.delete_event(None, Some("Nintendo Switch released"), None);
+    events.delete_event(None, None, Some("Nintendo Switch released"), None);
     // Deletes 1991-08-06;"World Wide Web goes live";"Internet"
-    events.delete_event(NaiveDate::from_ymd_opt(1991, 8, 6), Some("World Wide Web goes live"), Some("Internet"));
+    events.delete_event(NaiveDate::from_ymd_opt(1991, 8, 6), None, Some("World Wide Web goes live"), Some("Internet"));
 
-    println!("\n");
-    for event in &events {
-        print!("{}\n", event);
-    }
+    // All events after deletion
+    println!("\nAll events after deletion:");
+    events.print_events(None, None, None, None);
     println!("\n");
 
     // Print Intel events
     println!("Intel events:");
-    events.print_events(None, None, Some("Intel"));
+    events.print_events(None, None, None, Some("Intel"));
     println!("\n");
 
     // Print Google events
     println!("Google events:");
-    events.print_events(None, None, Some("Google"));
+    events.print_events(None, None, None, Some("Google"));
     println!("\n");
 
     // Print 2007-06-29 events
     println!("2007-06-29 events:");
-    events.print_events(NaiveDate::from_ymd_opt(2007, 6, 29), None, None);
+    events.print_events(NaiveDate::from_ymd_opt(2007, 6, 29), None, None, None);
     println!("\n");
 
     // Print "Facebook founded" events
     println!("\"Facebook founded\" events:");
-    events.print_events(None, Some("Facebook founded"), None);
+    events.print_events(None, None, Some("Facebook founded"), None);
     println!("\n");
 
     // Export events to CSV file

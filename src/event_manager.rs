@@ -14,33 +14,38 @@ impl EventManager {
         }
     }
 
+    // Add an event to the event list
     pub fn add_event(&mut self, e: event::Event) {
         self.event_list.push(e);
     }
 
     // Delete all events that match the given information
-    pub fn delete_event(&mut self, date: Option<NaiveDate>, desc: Option<&str>, cate: Option<&str>) {
+    // If all values are None, all events will be deleted
+    pub fn delete_event(&mut self, start_date: Option<NaiveDate>, end_date: Option<NaiveDate>, desc: Option<&str>, cate: Option<&str>) {
         let mut index_list = Vec::new();
+        // If the end_date is None, it will be set as start_date
+        let end_date = end_date.or(start_date);
         for (i, e) in self.event_list.iter().enumerate() {
-            if date.map_or(true, |date| e.date() == date) 
-            && desc.map_or(true, |desc| e.description() == desc)
-            && cate.map_or(true, |cate| e.category() == cate) {
+            if (start_date.map_or(true, |start| e.date() >= start) && end_date.map_or(true, |end| e.date() <= end))
+            && desc.map_or(true, |des| e.description() == des)
+            && cate.map_or(true, |cat| e.category() == cat) {
                 index_list.push(i);
             }
         }
         for i in index_list.iter().rev() {
             self.event_list.remove(*i);
         }
-        
     }
 
     // Print all events that match the given information
-    pub fn print_events(&mut self, date: Option<NaiveDate>, desc: Option<&str>, cate: Option<&str>) {
+    // Works like delete_event, but prints the events instead of deleting them
+    pub fn print_events(&mut self, start_date: Option<NaiveDate>, end_date: Option<NaiveDate>, desc: Option<&str>, cate: Option<&str>) {
         let mut index_list = Vec::new();
+        let end_date = end_date.or(start_date);
         for (i, e) in self.event_list.iter().enumerate() {
-            if date.map_or(true, |date| e.date() == date) 
-            && desc.map_or(true, |desc| e.description() == desc)
-            && cate.map_or(true, |cate| e.category() == cate) {
+            if (start_date.map_or(true, |start| e.date() >= start) && end_date.map_or(true, |end| e.date() <= end))
+            && desc.map_or(true, |des| e.description() == des)
+            && cate.map_or(true, |cat| e.category() == cat) {
                 index_list.push(i);
             }
         }
@@ -49,6 +54,8 @@ impl EventManager {
         }
     }
 
+    // Import events from a CSV file
+    // Delimiter is ","
     pub fn import_csv(&mut self, file_name: &str) -> Result<(), Error> {
         let file = File::open(file_name)?;
 
@@ -72,6 +79,8 @@ impl EventManager {
         Ok(())
     }
 
+    // Export events to a CSV file
+    // Delimiter is ","
     pub fn export_csv(&self, file_name: &str) -> Result<(), Error> {
         let mut wtr = csv::Writer::from_path(file_name)?;
 
@@ -125,8 +134,24 @@ mod tests {
         event_manager.add_event(event2);
         event_manager.add_event(event3);
 
-        event_manager.delete_event(None, None, None);
+        event_manager.delete_event(None, None, None, None);
 
         assert_eq!(event_manager.event_list.len(), 0);
+    }
+
+    #[test]
+    fn test_print_events() {
+        let mut event_manager = EventManager::new();
+        let event1 = event::Event::new();
+        let event2 = event::Event::new();
+        let event3 = event::Event::new();
+
+        event_manager.add_event(event1);
+        event_manager.add_event(event2);
+        event_manager.add_event(event3);
+
+        event_manager.print_events(None, None, None, None);
+
+        assert_eq!(event_manager.event_list.len(), 3);
     }
 }

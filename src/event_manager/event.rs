@@ -74,7 +74,7 @@ mod tests {
     fn test_new_event() {
         let event = Event::new();
         assert_eq!(event.description(), "Empty event");
-        assert_eq!(event.category(), "");
+        assert_eq!(event.category(), "Category");
     }
 
     #[test]
