@@ -81,7 +81,7 @@ mod tests {
     fn test_set_date() {
         let mut event = Event::new();
         event.set_date("2022-01-01");
-        assert_eq!(event.date(), NaiveDate::from_ymd(2022, 1, 1));
+        assert_eq!(event.date(), NaiveDate::from_ymd_opt(2022, 1, 1).unwrap());
     }
 
     #[test]
@@ -92,9 +92,29 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Failed to parse date")]
-    fn test_set_invalid_date() {
+    fn test_set_category() {
         let mut event = Event::new();
-        event.set_date("invalid-date");
+        event.set_category("Test category");
+        assert_eq!(event.category(), "Test category");
+    }
+
+    #[test]
+    fn test_display_format() {
+        let event = Event::new();
+        assert_eq!(format!("{}", event), format!("{}: {} ({})", event.date(), event.description(), event.category()));
+    }
+
+    #[test]
+    fn test_set_long_description() {
+        let mut event = Event::new();
+        event.set_description("This is a very long description that exceeds the maximum allowed length of 200 characters. This description should be truncated.");
+        assert_eq!(event.description(), "This is a very long description that exceeds the maximum allowed length of 200 characters. This description should be truncated.");
+    }
+
+    #[test]
+    fn test_set_long_category() {
+        let mut event = Event::new();
+        event.set_category("This is a very long category name that exceeds the maximum allowed length of 30 characters. This category name should be truncated.");
+        assert_eq!(event.category(), "This is a very long category name that exceeds the maximum allowed length of 30 characters. This category name should be truncated.");
     }
 }

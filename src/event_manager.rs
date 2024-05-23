@@ -58,11 +58,47 @@ impl EventManager {
     }
 }
 
-impl<'a> IntoIterator for &'a EventManager {
-    type Item = &'a event::Event;
-    type IntoIter = std::slice::Iter<'a, event::Event>;
+// Using 'lifetime to specify the lifetime of the iterator
+// This requires slice::Iter to be used
+impl<'lifetime> IntoIterator for &'lifetime EventManager {
+    type Item = &'lifetime event::Event;
+    type IntoIter = std::slice::Iter<'lifetime, event::Event>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.event_list.iter()
+    }
+}
+
+
+
+// TESTS
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_add_event() {
+        let mut event_manager = EventManager::new();
+        let event = event::Event::new();
+        event_manager.add_event(event);
+
+        assert_eq!(event_manager.event_list.len(), 1);
+    }
+
+    #[test]
+    fn test_delete_event() {
+        let mut event_manager = EventManager::new();
+        let event1 = event::Event::new();
+        let event2 = event::Event::new();
+        let event3 = event::Event::new();
+
+        event_manager.add_event(event1);
+        event_manager.add_event(event2);
+        event_manager.add_event(event3);
+
+        event_manager.delete_event(None, None, None);
+
+        assert_eq!(event_manager.event_list.len(), 0);
     }
 }
