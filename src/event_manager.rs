@@ -26,7 +26,7 @@ impl EventManager {
         let end_date = end_date.or(start_date);
         for (index, e) in self.event_list.iter().enumerate() {
             if (start_date.map_or(true, |start| e.date() >= start) && end_date.map_or(true, |end| e.date() <= end))
-            && desc.map_or(true, |des| e.description() == des)
+            && desc.map_or(true, |des| e.description().starts_with(des))
             && cate.map_or(true, |cat| e.category() == cat) {
                 event_indices.push(index);
             }
@@ -142,6 +142,43 @@ mod tests {
             let indices = event_manager.fetch_events(None, None, None, None);
 
             assert_eq!(indices.len(), 2);
+        }
+
+        #[test]
+        fn test_fetch_events_all_values() {
+            let mut event_manager = EventManager::new();
+            let event1 = event::Event::new();
+            let event2 = event::Event::new();
+            event_manager.add_event(event1);
+            event_manager.add_event(event2);
+
+            let indices = event_manager.fetch_events(NaiveDate::from_ymd_opt(2022, 1, 1), NaiveDate::from_ymd_opt(2022, 1, 1), Some("Test"), Some("Test"));
+
+            assert_eq!(indices.len(), 0);
+        }
+
+        #[test]
+        fn test_delete_event() {
+            let mut event_manager = EventManager::new();
+            let event1 = event::Event::new();
+            let event2 = event::Event::new();
+            event_manager.add_event(event1);
+            event_manager.add_event(event2);
+
+            event_manager.delete_event(vec![0]);
+
+            assert_eq!(event_manager.event_list.len(), 1);
+        }
+
+        #[test]
+        fn test_print_events() {
+            let mut event_manager = EventManager::new();
+            let event1 = event::Event::new();
+            let event2 = event::Event::new();
+            event_manager.add_event(event1);
+            event_manager.add_event(event2);
+
+            event_manager.print_events(vec![0, 1]);
         }
     }
 }
