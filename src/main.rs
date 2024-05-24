@@ -1,13 +1,20 @@
 mod event_manager;
 use crate::event_manager::event;
 use chrono::NaiveDate;
+use home::home_dir;
 
 fn main() {
     // New vector to push the events into
     let mut events: event_manager::EventManager = event_manager::EventManager::new();
 
     // Import events from CSV file
-    if let Err(err) = events.import_csv("test-data.csv") {
+    let home_path = home_dir()
+                    .unwrap()
+                    .to_str()
+                    .unwrap()
+                    .to_string();
+    let file_path = format!("{}/.days/test-events.csv", home_path);
+    if let Err(err) = events.import_csv(&file_path) {
         println!("Error importing CSV: {}", err);
     }
 
@@ -63,7 +70,8 @@ fn main() {
     println!("\n");
 
     // Export events to CSV file
-    if let Err(err) = events.export_csv("data.csv") {
+    let file_path = format!("{}/.days/events.csv", home_path);
+    if let Err(err) = events.export_csv(&file_path) {
         println!("Error exporting CSV: {}", err);
     }
 }
