@@ -14,6 +14,7 @@ fn main() {
     // Add default event
     events.add_event(event::Event::new());
 
+    /*
     // All events from csv file
     println!("All events:");
     events.print_events(None, None, None, None);
@@ -22,7 +23,7 @@ fn main() {
     // Print events from 2000-01-01 to 2015-12-31
     println!("Events from 2000-01-01 to 2015-12-31:");
     events.print_events(NaiveDate::from_ymd_opt(2000, 1, 1), NaiveDate::from_ymd_opt(2015, 12, 31), None, None);
-    
+
     // Deletes Microsoft events
     events.delete_event(None, None, None, Some("Microsoft"));
     // Deletes 2010-04-03 events
@@ -56,6 +57,34 @@ fn main() {
     println!("\"Facebook founded\" events:");
     events.print_events(None, None, Some("Facebook founded"), None);
     println!("\n");
+
+    */
+
+    // Print all events
+    println!("All events: ");
+    let print_event_indices = events.fetch_events(None, None, None, None);
+    events.print_events(print_event_indices);
+    println!("\n");
+
+    // Fetch and print 1990-01-01 to 1995-12-31 events
+    println!("Events from 1990-01-01 to 1995-12-31: ");
+    let print_event_indices = events.fetch_events(NaiveDate::from_ymd_opt(1990, 1, 1), NaiveDate::from_ymd_opt(1995, 12, 31), None, None);
+    events.print_events(print_event_indices);
+    println!("\n");
+
+    // Fetch and delete "Microsoft" events
+    let fetched_event_indices = events.fetch_events(None, None, None, Some("Microsoft"));
+    events.delete_event(fetched_event_indices);
+
+    // Fetch and print "Google" events
+    println!("Google events: ");
+    let print_event_indices = events.fetch_events(None, None, None, Some("Google"));
+    events.print_events(print_event_indices);
+    println!("\n");
+
+    // Fetch and delete 2007-06-29 events
+    let fetched_event_indices = events.fetch_events(NaiveDate::from_ymd_opt(2007, 6, 29), None, None, None);
+    events.delete_event(fetched_event_indices);
 
     // Export events to CSV file
     if let Err(err) = events.export_csv("data.csv") {

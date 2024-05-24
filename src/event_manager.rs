@@ -19,38 +19,33 @@ impl EventManager {
         self.event_list.push(e);
     }
 
-    // Delete all events that match the given information
-    // If all values are None, all events will be deleted
-    pub fn delete_event(&mut self, start_date: Option<NaiveDate>, end_date: Option<NaiveDate>, desc: Option<&str>, cate: Option<&str>) {
-        let mut index_list = Vec::new();
-        // If the end_date is None, it will be set as start_date
+    // Fetch all event indices that match the given information
+    // If all values are None, all event indices are returned
+    pub fn fetch_events(&self, start_date: Option<NaiveDate>, end_date: Option<NaiveDate>, desc: Option<&str>, cate: Option<&str>) -> Vec<usize> {
+        let mut event_indices = Vec::new();
         let end_date = end_date.or(start_date);
-        for (i, e) in self.event_list.iter().enumerate() {
+        for (index, e) in self.event_list.iter().enumerate() {
             if (start_date.map_or(true, |start| e.date() >= start) && end_date.map_or(true, |end| e.date() <= end))
             && desc.map_or(true, |des| e.description() == des)
             && cate.map_or(true, |cat| e.category() == cat) {
-                index_list.push(i);
+                event_indices.push(index);
             }
         }
-        for i in index_list.iter().rev() {
-            self.event_list.remove(*i);
+        event_indices
+    }
+
+    // Delete all events that match the given indices
+    pub fn delete_event(&mut self, delete_indices: Vec<usize>) {
+        for index in delete_indices.iter().rev() {
+            self.event_list.remove(*index);
         }
     }
 
-    // Print all events that match the given information
+    // Print all event indices that match the given information
     // Works like delete_event, but prints the events instead of deleting them
-    pub fn print_events(&mut self, start_date: Option<NaiveDate>, end_date: Option<NaiveDate>, desc: Option<&str>, cate: Option<&str>) {
-        let mut index_list = Vec::new();
-        let end_date = end_date.or(start_date);
-        for (i, e) in self.event_list.iter().enumerate() {
-            if (start_date.map_or(true, |start| e.date() >= start) && end_date.map_or(true, |end| e.date() <= end))
-            && desc.map_or(true, |des| e.description() == des)
-            && cate.map_or(true, |cat| e.category() == cat) {
-                index_list.push(i);
-            }
-        }
-        for i in index_list.iter().rev() {
-            println!("{}", self.event_list[*i]);
+    pub fn print_events(&self, print_indices: Vec<usize>) {
+        for index in print_indices {
+            println!("{}", self.event_list[index]);
         }
     }
 
@@ -123,35 +118,30 @@ mod tests {
         assert_eq!(event_manager.event_list.len(), 1);
     }
 
-    #[test]
-    fn test_delete_event() {
-        let mut event_manager = EventManager::new();
-        let event1 = event::Event::new();
-        let event2 = event::Event::new();
-        let event3 = event::Event::new();
+    #[cfg(test)]
+    mod tests {
+        use super::*;
 
-        event_manager.add_event(event1);
-        event_manager.add_event(event2);
-        event_manager.add_event(event3);
+        #[test]
+        fn test_add_event() {
+            let mut event_manager = EventManager::new();
+            let event = event::Event::new();
+            event_manager.add_event(event);
 
-        event_manager.delete_event(None, None, None, None);
+            assert_eq!(event_manager.event_list.len(), 1);
+        }
 
-        assert_eq!(event_manager.event_list.len(), 0);
-    }
+        #[test]
+        fn test_fetch_events_all_none() {
+            let mut event_manager = EventManager::new();
+            let event1 = event::Event::new();
+            let event2 = event::Event::new();
+            event_manager.add_event(event1);
+            event_manager.add_event(event2);
 
-    #[test]
-    fn test_print_events() {
-        let mut event_manager = EventManager::new();
-        let event1 = event::Event::new();
-        let event2 = event::Event::new();
-        let event3 = event::Event::new();
+            let indices = event_manager.fetch_events(None, None, None, None);
 
-        event_manager.add_event(event1);
-        event_manager.add_event(event2);
-        event_manager.add_event(event3);
-
-        event_manager.print_events(None, None, None, None);
-
-        assert_eq!(event_manager.event_list.len(), 3);
+            assert_eq!(indices.len(), 2);
+        }
     }
 }

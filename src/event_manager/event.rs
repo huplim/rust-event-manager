@@ -61,6 +61,12 @@ impl fmt::Display for Event {
     }
 }
 
+impl PartialEq for Event {
+    fn eq(&self, other: &Self) -> bool {
+        self.date == other.date && self.description == other.description && self.category == other.category
+    }
+}
+
 
 
 // TESTS
