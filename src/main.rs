@@ -64,6 +64,7 @@ fn main() {
         println!("Error importing CSV: {}", err);
     }
 
+    // Execute commands based on CLI arguments
     let args = Cli::parse();
     match args.command {
         Command::List { date, before_date, after_date, today, categories, exclusion } => {
@@ -128,18 +129,39 @@ fn main() {
         }
 
         Command::Delete { dry_run, date, description, category } => {
-            println!("Deleting events...");
+            let mut given_date = None;
+            let mut given_description = None;
+            let mut given_categories = Vec::new();
+
             if let Some(date) = date {
-                println!("Date: {}", date);
+                given_date = Some(date);
             }
             if let Some(category) = category {
-                println!("Category: {}", category);
+                given_categories.push(Some(category));
             }
             if let Some(description) = description {
-                println!("Description: {}", description);
+                given_description = Some(description);
             }
+
+            let delete_event_indices = events.fetch_events(
+                given_date,
+                given_date,
+                given_description,
+                given_categories,
+                false,
+            );
+
+            // Only print if dry_run is given
             if dry_run {
-                println!("Dry run");
+                events.print_events(delete_event_indices.clone());
+            }
+            else {
+                events.delete_event(delete_event_indices.clone());
+                // Export events to CSV file
+                let file_path = format!("{}/.days/events.csv", home_path);
+                if let Err(err) = events.export_csv(&file_path) {
+                    println!("Error exporting CSV: {}", err);
+                }
             }
         }
     }
