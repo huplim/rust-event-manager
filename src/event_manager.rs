@@ -21,7 +21,7 @@ impl EventManager {
 
     // Fetch all event indices that match the given information
     // If all values are None, all event indices are returned
-    pub fn fetch_events(&self, start_date: Option<NaiveDate>, end_date: Option<NaiveDate>, desc: Option<String>, cate: Vec<Option<String>>) -> Vec<usize> {
+    pub fn fetch_events(&self, start_date: Option<NaiveDate>, end_date: Option<NaiveDate>, desc: Option<String>, cate: Vec<Option<String>>, excl: bool) -> Vec<usize> {
         let mut event_indices = Vec::new();
         for (index, e) in self.event_list.iter().enumerate() {
             let date_matches = match (start_date, end_date) {
@@ -31,7 +31,13 @@ impl EventManager {
                 (None, Some(end)) => e.date() < end,
                 (None, None) => true,
             };
-            let cate_matches = cate.is_empty() || cate.contains(&Some(e.category().clone()));
+            // If exclusion is true, the category must not be in the list
+            let cate_matches;
+            if excl {
+                cate_matches = cate.is_empty() || !cate.contains(&Some(e.category().clone()));
+            } else {
+                cate_matches = cate.is_empty() || cate.contains(&Some(e.category().clone()));
+            }
             if date_matches
             && desc.as_deref().map_or(true, |des| e.description().starts_with(des))
             && cate_matches {

@@ -24,7 +24,7 @@ enum Command {
         today: bool,
         #[clap(long)]
         categories: Option<String>,
-        #[clap(long)]
+        #[clap(long = "exclude")]
         exclusion: bool,
     },
     #[clap(name = "add")]
@@ -100,7 +100,8 @@ fn main() {
                 given_after_date,
                 given_before_date,
                 None, // No description filter
-                given_categories
+                given_categories,
+                exclusion,
             );
             events.print_events(print_event_indices);
         }
