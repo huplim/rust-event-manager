@@ -1,5 +1,5 @@
 [package]
-name = "event-manager"
+name = "days"
 version = "0.1.0"
 edition = "2021"
 
@@ -9,3 +9,4 @@ edition = "2021"
 chrono = "0.4"
 csv = "1.3.0"
 home = "0.5.3"
+clap = { version = "4.0", features = ["derive"] }
