@@ -1,5 +1,5 @@
 mod event_manager;
-
+use event_manager::event;
 use chrono::NaiveDate;
 use home::home_dir;
 use clap::Parser;
@@ -31,7 +31,7 @@ enum Command {
     Add {
         #[clap(long)]
         date: Option<NaiveDate>,
-        #[clap(long)]
+        #[clap(short, long)]
         description: String,
         #[clap(long)]
         category: String,
@@ -59,7 +59,7 @@ fn main() {
                     .to_str()
                     .unwrap()
                     .to_string();
-    let file_path = format!("{}/.days/test-events.csv", home_path);
+    let file_path = format!("{}/.days/events.csv", home_path);
     if let Err(err) = events.import_csv(&file_path) {
         println!("Error importing CSV: {}", err);
     }
@@ -107,12 +107,24 @@ fn main() {
         }
 
         Command::Add { date, description, category } => {
-            println!("Adding event...");
+            let given_date;
+
+            // If no date is given, use the current date
             if let Some(date) = date {
-                println!("Date: {}", date);
+                given_date = Some(date);
             }
-            println!("Description: {}", description);
-            println!("Category: {}", category);
+            else {
+                given_date = Some(chrono::Local::now().date_naive());
+            }
+
+            let new_event = event::Event::new_with_values(given_date.unwrap(), &description, &category);
+            events.add_event(new_event);
+            
+            // Export events to CSV file
+            let file_path = format!("{}/.days/events.csv", home_path);
+            if let Err(err) = events.export_csv(&file_path) {
+                println!("Error exporting CSV: {}", err);
+            }
         }
 
         Command::Delete { dry_run, date, description, category } => {

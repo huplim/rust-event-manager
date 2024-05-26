@@ -16,6 +16,16 @@ impl Event {
             category: String::from("Category"),
         }
     }
+
+    // Create a new event with the given values
+    pub fn new_with_values(date: NaiveDate, description: &str, category: &str) -> Event {
+        Event {
+            date,
+            description: description.to_string(),
+            category: category.to_string(),
+        }
+    }
+
     // Getters and setters
 
     // Easier to use strings for setting the date (from CSV for example)
