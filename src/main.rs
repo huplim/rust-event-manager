@@ -1,6 +1,6 @@
 mod event_manager;
-use crate::event_manager::event;
-use chrono::{NaiveDate, Local};
+
+use chrono::NaiveDate;
 use home::home_dir;
 use clap::Parser;
 
@@ -23,9 +23,9 @@ enum Command {
         #[clap(long)] // No value needed
         today: bool,
         #[clap(long)]
-        category: Option<String>,
+        categories: Option<String>,
         #[clap(long)]
-        description: Option<String>,
+        exclusion: bool,
     },
     #[clap(name = "add")]
     Add {
@@ -66,30 +66,43 @@ fn main() {
 
     let args = Cli::parse();
     match args.command {
-        Command::List { date, before_date, after_date, today, category, description } => {
-            println!("Listing events...");
+        Command::List { date, before_date, after_date, today, categories, exclusion } => {
+            let mut given_before_date = None;
+            let mut given_after_date = None;
+            let mut given_categories = Vec::new();
+
             if today {
-                let today = chrono::Local::today().naive_local();
-                println!("Today is: {}", today);
+                given_before_date = Some(chrono::Local::now().date_naive());
+                given_after_date = Some(chrono::Local::now().date_naive());
             }
             else if let Some(date) = date {
-                println!("Date: {}", date);
+                given_before_date = Some(date);
+                given_after_date = Some(date);
             }
             else {
                 if let Some(date) = before_date {
-                    println!("Before date: {}", date);
+                    given_before_date = Some(date);
                 }
                 if let Some(date) = after_date {
-                    println!("After date: {}", date);
+                    given_after_date = Some(date);
                 }
             }
 
-            if let Some(category) = category {
-                println!("Category: {}", category);
+            // Split the `categories` string into a vector of categories
+            if let Some(categories_string) = categories {
+                given_categories = categories_string
+                    .split(',')
+                    .map(|s| Some(s.to_string()))
+                    .collect();
             }
-            if let Some(description) = description {
-                println!("Description: {}", description);
-            }
+
+            let print_event_indices = events.fetch_events(
+                given_after_date,
+                given_before_date,
+                None, // No description filter
+                given_categories
+            );
+            events.print_events(print_event_indices);
         }
 
         Command::Add { date, description, category } => {
