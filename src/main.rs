@@ -12,6 +12,8 @@ struct Cli {
 
 #[derive(Parser)]
 enum Command {
+    // List command has optional arguments:
+    // date, before_date, after_date, today, categories, exclude
     #[clap(name = "list")]
     List {
         #[clap(long)]
@@ -27,6 +29,8 @@ enum Command {
         #[clap(long = "exclude")]
         exclusion: bool,
     },
+    // Add command has required arguments: description, category
+    // and an optional argument: date
     #[clap(name = "add")]
     Add {
         #[clap(long)]
@@ -36,10 +40,14 @@ enum Command {
         #[clap(long)]
         category: String,
     },
+    // Delete command has optional arguments: date, description, category
+    // and an optional flag: dry-run, all
     #[clap(name = "delete")]
     Delete {
         #[clap(long = "dry-run")] // Can't use hyphen in variable name
         dry_run: bool,
+        #[clap(long)]
+        all: bool,
         #[clap(long)]
         date: Option<NaiveDate>,
         #[clap(long)]
@@ -128,7 +136,7 @@ fn main() {
             }
         }
 
-        Command::Delete { dry_run, date, description, category } => {
+        Command::Delete { dry_run, date, description, category, all } => {
             let mut given_date = None;
             let mut given_description = None;
             let mut given_categories = Vec::new();
@@ -143,103 +151,29 @@ fn main() {
                 given_description = Some(description);
             }
 
-            let delete_event_indices = events.fetch_events(
-                given_date,
-                given_date,
-                given_description,
-                given_categories,
-                false,
-            );
-
-            // Only print if dry_run is given
-            if dry_run {
-                events.print_events(delete_event_indices.clone());
-            }
-            else {
-                events.delete_event(delete_event_indices.clone());
-                // Export events to CSV file
-                let file_path = format!("{}/.days/events.csv", home_path);
-                if let Err(err) = events.export_csv(&file_path) {
-                    println!("Error exporting CSV: {}", err);
+            // If all is not true, one other argument must be given
+            if given_date.is_some() || given_description.is_some() || !given_categories.is_empty() || all {
+                let delete_event_indices = events.fetch_events(
+                    given_date,
+                    given_date,
+                    given_description,
+                    given_categories,
+                    false,
+                );
+            
+                // Only print if dry_run is given
+                if dry_run {
+                    events.print_events(delete_event_indices.clone());
+                }
+                else {
+                    events.delete_event(delete_event_indices.clone());
+                    // Export events to CSV file
+                    let file_path = format!("{}/.days/events.csv", home_path);
+                    if let Err(err) = events.export_csv(&file_path) {
+                        println!("Error exporting CSV: {}", err);
+                    }
                 }
             }
         }
     }
-
-
-
-
-    // Some old testing code
-    /*
-    // New vector to push the events into
-    let mut events: event_manager::EventManager = event_manager::EventManager::new();
-
-    // Import events from CSV file
-    let home_path = home_dir()
-                    .unwrap()
-                    .to_str()
-                    .unwrap()
-                    .to_string();
-    let file_path = format!("{}/.days/test-events.csv", home_path);
-    if let Err(err) = events.import_csv(&file_path) {
-        println!("Error importing CSV: {}", err);
-    }
-
-    // Add default event
-    events.add_event(event::Event::new());
-
-    // Print all events
-    println!("All events: ");
-    let print_event_indices = events.fetch_events(None, None, None, None);
-    events.print_events(print_event_indices);
-    println!("\n");
-
-    // Fetch and print 1990-01-01 to 1995-12-31 events
-    println!("Events from 1990-01-01 to 1995-12-31: ");
-    let print_event_indices = events.fetch_events(NaiveDate::from_ymd_opt(1990, 1, 1), NaiveDate::from_ymd_opt(1995, 12, 31), None, None);
-    events.print_events(print_event_indices);
-    println!("\n");
-
-    // Fetch and print events that start with "Window"
-    println!("Events that start with 'Window': ");
-    let print_event_indices = events.fetch_events(None, None, Some("Window"), None);
-    events.print_events(print_event_indices);
-    println!("\n");
-
-    // Fetch and print events that start with "W"
-    println!("Events that start with 'W': ");
-    let print_event_indices = events.fetch_events(None, None, Some("W"), None);
-    events.print_events(print_event_indices);
-    println!("\n");
-
-    // Fetch and delete "Microsoft" events
-    println!("Deleting Microsoft events: ");
-    let fetched_event_indices = events.fetch_events(None, None, None, Some("Microsoft"));
-    events.delete_event(fetched_event_indices);
-    println!("\n");
-
-    // Fetch and delete 2007-06-29 events
-    println!("Deleting 2007-06-29 events: ");
-    let fetched_event_indices = events.fetch_events(NaiveDate::from_ymd_opt(2007, 6, 29), None, None, None);
-    events.delete_event(fetched_event_indices);
-    println!("\n");
-
-    // Fetch and print "Google" events
-    println!("Google events: ");
-    let print_event_indices = events.fetch_events(None, None, None, Some("Google"));
-    events.print_events(print_event_indices);
-    println!("\n");
-
-    // Print all events
-    println!("All events: ");
-    let print_event_indices = events.fetch_events(None, None, None, None);
-    events.print_events(print_event_indices);
-    println!("\n");
-
-    // Export events to CSV file
-    let file_path = format!("{}/.days/events.csv", home_path);
-    if let Err(err) = events.export_csv(&file_path) {
-        println!("Error exporting CSV: {}", err);
-    }
-    */
 }

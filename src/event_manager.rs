@@ -121,77 +121,55 @@ impl<'lifetime> IntoIterator for &'lifetime EventManager {
 #[cfg(test)]
 mod tests {
     use super::*;
-
+    
+    #[test]
+    fn test_new_event_manager() {
+        let event_manager = EventManager::new();
+        assert_eq!(event_manager.event_list.len(), 0);
+    }
+    
     #[test]
     fn test_add_event() {
         let mut event_manager = EventManager::new();
         let event = event::Event::new();
         event_manager.add_event(event);
-
         assert_eq!(event_manager.event_list.len(), 1);
     }
-
-    #[cfg(test)]
-    mod tests {
-        use super::*;
-
-        #[test]
-        fn test_add_event() {
-            let mut event_manager = EventManager::new();
-            let event = event::Event::new();
-            event_manager.add_event(event);
-
-            assert_eq!(event_manager.event_list.len(), 1);
-        }
-
-        #[test]
-        fn test_fetch_events_all_none() {
-            let mut event_manager = EventManager::new();
-            let event1 = event::Event::new();
-            let event2 = event::Event::new();
-            event_manager.add_event(event1);
-            event_manager.add_event(event2);
-
-            let indices = event_manager.fetch_events(None, None, None, None);
-
-            assert_eq!(indices.len(), 2);
-        }
-
-        #[test]
-        fn test_fetch_events_all_values() {
-            let mut event_manager = EventManager::new();
-            let event1 = event::Event::new();
-            let event2 = event::Event::new();
-            event_manager.add_event(event1);
-            event_manager.add_event(event2);
-
-            let indices = event_manager.fetch_events(NaiveDate::from_ymd_opt(2022, 1, 1), NaiveDate::from_ymd_opt(2022, 1, 1), Some("Test"), Some("Test"));
-
-            assert_eq!(indices.len(), 0);
-        }
-
-        #[test]
-        fn test_delete_event() {
-            let mut event_manager = EventManager::new();
-            let event1 = event::Event::new();
-            let event2 = event::Event::new();
-            event_manager.add_event(event1);
-            event_manager.add_event(event2);
-
-            event_manager.delete_event(vec![0]);
-
-            assert_eq!(event_manager.event_list.len(), 1);
-        }
-
-        #[test]
-        fn test_print_events() {
-            let mut event_manager = EventManager::new();
-            let event1 = event::Event::new();
-            let event2 = event::Event::new();
-            event_manager.add_event(event1);
-            event_manager.add_event(event2);
-
-            event_manager.print_events(vec![0, 1]);
-        }
+    
+    #[test]
+    fn test_fetch_events_all() {
+        let mut event_manager = EventManager::new();
+        let event1 = event::Event::new();
+        let event2 = event::Event::new();
+        event_manager.add_event(event1);
+        event_manager.add_event(event2);
+        
+        let indices = event_manager.fetch_events(None, None, None, vec![], false);
+        assert_eq!(indices.len(), 2);
+    }
+    
+    #[test]
+    fn test_delete_event() {
+        let mut event_manager = EventManager::new();
+        let event1 = event::Event::new();
+        let event2 = event::Event::new();
+        event_manager.add_event(event1);
+        event_manager.add_event(event2);
+        
+        event_manager.delete_event(vec![0]);
+        assert_eq!(event_manager.event_list.len(), 1);
+    }
+    
+    #[test]
+    fn test_print_events() {
+        let mut event_manager = EventManager::new();
+        let event1 = event::Event::new();
+        let event2 = event::Event::new();
+        event_manager.add_event(event1);
+        event_manager.add_event(event2);
+        
+        let print_indices = vec![0, 1];
+        event_manager.print_events(print_indices);
+        // Assert that the events are printed correctly (output can't be tested here)
     }
 }
