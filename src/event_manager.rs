@@ -24,6 +24,7 @@ impl EventManager {
     pub fn fetch_events(&self, start_date: Option<NaiveDate>, end_date: Option<NaiveDate>, desc: Option<String>, cate: Vec<Option<String>>, excl: bool) -> Vec<usize> {
         let mut event_indices = Vec::new();
         for (index, e) in self.event_list.iter().enumerate() {
+            // If start_date and end_date are the same, only that date is chosen
             let date_matches = match (start_date, end_date) {
                 (Some(start), Some(end)) if start == end => e.date() == start,
                 (Some(start), Some(end)) => e.date() >= start && e.date() < end,
@@ -31,7 +32,7 @@ impl EventManager {
                 (None, Some(end)) => e.date() < end,
                 (None, None) => true,
             };
-            // If exclusion is true, the category must not be in the list
+            // If exclusion is true, the category must NOT be in the list
             let cate_matches;
             if excl {
                 cate_matches = cate.is_empty() || !cate.contains(&Some(e.category().clone()));
@@ -49,13 +50,13 @@ impl EventManager {
 
     // Delete all events that match the given indices
     pub fn delete_event(&mut self, delete_indices: Vec<usize>) {
+        // Delete in reverse order to avoid index issues
         for index in delete_indices.iter().rev() {
             self.event_list.remove(*index);
         }
     }
 
     // Print all event indices that match the given information
-    // Works like delete_event, but prints the events instead of deleting them
     pub fn print_events(&self, print_indices: Vec<usize>) {
         for index in print_indices {
             println!("{}", self.event_list[index]);

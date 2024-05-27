@@ -5,6 +5,12 @@ use home::home_dir;
 use clap::Parser;
 
 #[derive(Parser)]
+#[clap(
+    name = "days",
+    version = "0.1.0",
+    author = "Miika Hupli",
+    about = "A simple CLI event manager",
+)]
 struct Cli {
     #[clap(subcommand)]
     pub command: Command,
@@ -14,7 +20,7 @@ struct Cli {
 enum Command {
     // List command has optional arguments:
     // date, before_date, after_date, today, categories, exclude
-    #[clap(name = "list")]
+    #[clap(name = "list", about = "--date, --before-date, --after-date, --today, --categories, --exclude")]
     List {
         #[clap(long)]
         date: Option<NaiveDate>,
@@ -31,7 +37,7 @@ enum Command {
     },
     // Add command has required arguments: description, category
     // and an optional argument: date
-    #[clap(name = "add")]
+    #[clap(name = "add", about = "--date, --description, --category")]
     Add {
         #[clap(long)]
         date: Option<NaiveDate>,
@@ -42,7 +48,7 @@ enum Command {
     },
     // Delete command has optional arguments: date, description, category
     // and an optional flag: dry-run, all
-    #[clap(name = "delete")]
+    #[clap(name = "delete", about = "--dry-run, --all, --date, --description, --category")]
     Delete {
         #[clap(long = "dry-run")] // Can't use hyphen in variable name
         dry_run: bool,
@@ -85,6 +91,8 @@ fn main() {
                 given_after_date = Some(chrono::Local::now().date_naive());
             }
             else if let Some(date) = date {
+                // If date is given, use that date for both before and after
+                // This is because fetch_events works in a specific way
                 given_before_date = Some(date);
                 given_after_date = Some(date);
             }
