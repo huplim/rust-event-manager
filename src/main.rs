@@ -1,5 +1,6 @@
 mod event_manager;
-use event_manager::event;
+use crate::event_manager::EventManager;
+use event_manager::event::Event;
 use chrono::NaiveDate;
 use home::home_dir;
 use clap::Parser;
@@ -65,7 +66,7 @@ enum Command {
 
 fn main() {
     // New vector to push the events into
-    let mut events: event_manager::EventManager = event_manager::EventManager::new();
+    let mut events = EventManager::new();
 
     // Import events from CSV file
     let home_path = home_dir()
@@ -134,9 +135,9 @@ fn main() {
                 given_date = Some(chrono::Local::now().date_naive());
             }
 
-            let new_event = event::Event::new_with_values(given_date.unwrap(), &description, &category);
+            let new_event = Event::new_with_values(given_date.unwrap(), &description, &category);
             events.add_event(new_event);
-            
+
             // Export events to CSV file
             let file_path = format!("{}/.days/events.csv", home_path);
             if let Err(err) = events.export_csv(&file_path) {
@@ -168,7 +169,7 @@ fn main() {
                     given_categories,
                     false,
                 );
-            
+
                 // Only print if dry_run is given
                 if dry_run {
                     events.print_events(delete_event_indices.clone());
